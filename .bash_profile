@@ -45,7 +45,7 @@ alias du+='du -hsc .*' # Disc usage of current dicertory
 #alias tree='tree -Csuh'    #  Nice alternative to 'recursive ls' ...
 
 # git shortcuts
-alias git-master='git checkout master && git pull'
+alias gm='git checkout master && git pull' # git-master, checks out master and pulls
 alias gs='git status '
 alias ga='git add '
 alias gb='git branch '
