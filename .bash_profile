@@ -7,24 +7,23 @@ export LSCOLORS=ExFxBxDxCxegedabagacad
 export WORKON_HOME=~/Envs
 source /usr/local/bin/virtualenvwrapper.sh
 
-# Setting up Vault server address
-export VAULT_ADDR='http://vault.gspaces.com:8200'
-
 # Aliases
 alias ls='ls -GFh'
 alias ll='ls -la'
+alias pip.='pip install -e . --upgrade'
 
 # Disable options:
-#unset MAILCHECK        # Don't want my shell to warn me of incoming mail.
+unset MAILCHECK        # Don't want my shell to warn me of incoming mail.
 
 #alias mkdir='mkdir -p'
-#alias c='clear'
-#alias h='history'
+alias c='clear'
+alias h='history'
 #alias j='jobs -l'
 #alias ..='cd ..'
-#alias path='echo -e ${PATH//:/\\n}'
+alias path='echo -e ${PATH//:/\\n}'
 #alias libpath='echo -e ${LD_LIBRARY_PATH//:/\\n}'
-#alias du='du -kh'    # Makes a more readable output.
+alias du='du -kh'    # Makes a more readable output.
+alias du+='du -hsc .*' # Disc usage of current dicertory 
 #alias df='df -kTh'
 
 # Add colors for filetype and  human-readable sizes by default on 'ls':
@@ -43,6 +42,7 @@ alias ll='ls -la'
 #alias tree='tree -Csuh'    #  Nice alternative to 'recursive ls' ...
 
 # git shortcuts
+alias git-master='git checkout master && git pull'
 alias gs='git status '
 alias ga='git add '
 alias gb='git branch '
@@ -59,9 +59,6 @@ alias gr='git rebase -i'
 alias mk_env='mkvirtualenv'
 alias rm_env='rmvirtualenv'
 
-# Cloudhealth API key
-export CLOUDHEALTH_API_KEY=
-
 # OS purge tool to clean your OS environment
 alias clean_os='ospurge --own-project --dont-delete-project'
 export OS_AUTH_URL=
@@ -69,17 +66,3 @@ export OS_USERNAME=
 export OS_PASSWORD=''
 export OS_TENANT_NAME=
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f /Users/assi/Downloads/google-cloud-sdk/path.bash.inc ]; then
-  source '/Users/assi/Downloads/google-cloud-sdk/path.bash.inc'
-fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f /Users/assi/Downloads/google-cloud-sdk/completion.bash.inc ]; then
-  source '/Users/assi/Downloads/google-cloud-sdk/completion.bash.inc'
-fi
-
-## Service hosts and managers ##
-alias use-prod='cfy profiles use 8.8.8.8'
-alias use-test='cfy profiles use 8.8.8.8'
-alias cs-super='ssh -i ~/AWS/Cloudify\ Service/cs-key.pem centos@172.31.48.43'
