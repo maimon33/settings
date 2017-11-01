@@ -11,14 +11,11 @@ export WORKON_HOME=~/Envs
 source /usr/local/bin/virtualenvwrapper.sh
 
 # Aliases
+alias s='source ~/.bash_profile'
 alias ls='ls -GFh'
 alias ll='ls -la'
 alias pip.='pip install -e . --upgrade'
-
-# Disable options:
-unset MAILCHECK        # Don't want my shell to warn me of incoming mail.
-
-#alias mkdir='mkdir -p'
+alias mkdir='mkdir -p'
 alias c='clear'
 alias h='history'
 #alias j='jobs -l'
@@ -28,6 +25,9 @@ alias path='echo -e ${PATH//:/\\n}'
 alias du='du -kh'    # Makes a more readable output.
 alias du+='du -hsc .*' # Disc usage of current dicertory 
 #alias df='df -kTh'
+
+# Disable options:
+unset MAILCHECK        # Don't want my shell to warn me of incoming mail.
 
 # Add colors for filetype and  human-readable sizes by default on 'ls':
 #alias ls='ls -h --color'
@@ -61,11 +61,3 @@ alias gr='git rebase -i'
 # virtual Env shortcuts
 alias mk_env='mkvirtualenv'
 alias rm_env='rmvirtualenv'
-
-# OS purge tool to clean your OS environment
-alias clean_os='ospurge --own-project --dont-delete-project'
-export OS_AUTH_URL=
-export OS_USERNAME=
-export OS_PASSWORD=''
-export OS_TENANT_NAME=
-
