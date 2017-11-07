@@ -12,37 +12,20 @@ source /usr/local/bin/virtualenvwrapper.sh
 
 # Aliases
 alias s='source ~/.bash_profile'
+alias pro='vim ~/.bash_profile'
+
 alias ls='ls -GFh'
 alias ll='ls -la'
 alias pip.='pip install -e . --upgrade'
 alias mkdir='mkdir -p'
 alias c='clear'
 alias h='history'
-#alias j='jobs -l'
-#alias ..='cd ..'
 alias path='echo -e ${PATH//:/\\n}'
-#alias libpath='echo -e ${LD_LIBRARY_PATH//:/\\n}'
 alias du='du -kh'    # Makes a more readable output.
 alias du+='du -hsc .*' # Disc usage of current dicertory 
-#alias df='df -kTh'
 
 # Disable options:
 unset MAILCHECK        # Don't want my shell to warn me of incoming mail.
-
-# Add colors for filetype and  human-readable sizes by default on 'ls':
-#alias ls='ls -h --color'
-#alias lx='ls -lXB'         #  Sort by extension.
-#alias lk='ls -lSr'         #  Sort by size, biggest last.
-#alias lt='ls -ltr'         #  Sort by date, most recent last.
-#alias lc='ls -ltcr'        #  Sort by/show change time,most recent last.
-#alias lu='ls -ltur'        #  Sort by/show access time,most recent last.
-
-# The ubiquitous 'll': directories first, with alphanumeric sorting:
-#alias ll="ls -lv --group-directories-first"
-#alias lm='ll |more'        #  Pipe through 'more'
-#alias lr='ll -R'           #  Recursive ls.
-#alias la='ll -A'           #  Show hidden files.
-#alias tree='tree -Csuh'    #  Nice alternative to 'recursive ls' ...
 
 # git shortcuts
 alias gm='git checkout master && git pull' # git-master, checks out master and pulls
@@ -61,3 +44,6 @@ alias gr='git rebase -i'
 # virtual Env shortcuts
 alias mk_env='mkvirtualenv'
 alias rm_env='rmvirtualenv'
+
+ # AWS envs
+ alias aws-stage='export AWS_ACCESS_KEY_ID=AKA...L && export AWS_SECRET_ACCESS_KEY="shu&%$%#n..T"'
