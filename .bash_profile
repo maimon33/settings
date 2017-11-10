@@ -22,7 +22,9 @@ alias c='clear'
 alias h='history'
 alias path='echo -e ${PATH//:/\\n}'
 alias du='du -kh'    # Makes a more readable output.
-alias du+='du -hsc .*' # Disc usage of current dicertory 
+alias du+='du -hsc .*' # Disc usage of current dicertory
+alias em='emacs -nw'
+alias _='sudo'
 
 # Disable options:
 unset MAILCHECK        # Don't want my shell to warn me of incoming mail.
@@ -40,6 +42,15 @@ alias gx='gitx --all'
 alias gp='git pull'
 alias gl='git log --oneline -n 10'
 alias gr='git rebase -i'
+
+# History File
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=1000
+HISTFILESIZE=2000
+
 
 # virtual Env shortcuts
 alias mk_env='mkvirtualenv'
