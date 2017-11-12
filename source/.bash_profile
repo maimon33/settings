@@ -6,6 +6,14 @@ export PS1="\[\033[36m\]\u\[\033[m\]@\h \[\033[32m\]\w\[\033[33m\]\$(parse_git_b
 export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagacad
 
+# History File
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=1000
+HISTFILESIZE=2000
+
 # Setting up Virtualenvwrapper
 export WORKON_HOME=~/Envs
 source /usr/local/bin/virtualenvwrapper.sh
@@ -27,6 +35,20 @@ alias du+='du -hsc .*' # Disc usage of current dicertory
 alias em='emacs -nw'
 alias _='sudo'
 
+# virtual Env shortcuts
+alias mk_env='mkvirtualenv'
+alias rm_env='rmvirtualenv'
+
+# Shell functions
+## Create folder and enter
+md () {
+    mkdir $1
+    cd $1
+}
+
+ # AWS envs
+ alias aws-stage='export AWS_ACCESS_KEY_ID=AKA...L && export AWS_SECRET_ACCESS_KEY="shu&%$%#n..T"'
+
 # Disable options:
 unset MAILCHECK        # Don't want my shell to warn me of incoming mail.
 
@@ -43,20 +65,11 @@ alias gx='gitx --all'
 alias gp='git pull'
 alias gl='git log --oneline -n 10'
 alias gr='git rebase -i'
-
-<<<<<<< HEAD:.bash_profile
-# History File
-# append to the history file, don't overwrite it
-shopt -s histappend
-
-# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=1000
-HISTFILESIZE=2000
-
-=======
-# do not delete / or prompt if deleting more than 3 files at a time #
-alias rm='rm -I --preserve-root'
  
+# Safeties
+## do not delete / or prompt if deleting more than 3 files at a time #
+alias rm='rm -I --preserve-root'
+
 # confirmation #
 alias mv='mv -i'
 alias cp='cp -i'
@@ -66,18 +79,3 @@ alias ln='ln -i'
 alias chown='chown --preserve-root'
 alias chmod='chmod --preserve-root'
 alias chgrp='chgrp --preserve-root'
->>>>>>> add source folder:source/.bash_profile
-
-# virtual Env shortcuts
-alias mk_env='mkvirtualenv'
-alias rm_env='rmvirtualenv'
-
-# Shell functions
-## Create folder and enter
-md () {
-    mkdir $1
-    cd $1
-}
-
- # AWS envs
- alias aws-stage='export AWS_ACCESS_KEY_ID=AKA...L && export AWS_SECRET_ACCESS_KEY="shu&%$%#n..T"'
