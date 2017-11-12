@@ -2,7 +2,7 @@
 
 if [ -f ~/Library/Application\ Support/Code/User/settings.json ]; then
     echo "File found! Getting the latest from GitHub, Archving the old"
-    mv ~/.vimrc ~/.vimrc.bak
+    mv ~/Library/Application\ Support/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json.bak
     curl https://raw.githubusercontent.com/maimon33/mac-setting/master/source/vs_code/settings.json -o ~/Library/Application\ Support/Code/User/settings.json
 else
     curl https://raw.githubusercontent.com/maimon33/mac-setting/master/source/vs_code/settings.json -o ~/Library/Application\ Support/Code/User/settings.json
