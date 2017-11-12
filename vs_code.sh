@@ -1,27 +1,9 @@
 #!/usr/bin/env bash
 
-bash -c 'cat > ~/Library/Application\ Support/Code/User/settings.json <<EOL
-{
-    "python.linting.pylintEnabled": false,
-    "files.autoSave": "onFocusChange",
-    "editor.rulers": [80,120],
-    "vim.disableAnnoyingNeovimMessage": true,
-    "workbench.colorTheme": "Monokai Dimmed",
-    "window.zoomLevel": 0,
-    "sync.gist": "294f60cdb8360e91af4422759c4cc3ba",
-    "sync.lastUpload": "2017-11-01T13:14:50.271Z",
-    "sync.autoDownload": false,
-    "sync.autoUpload": false,
-    "sync.lastDownload": "",
-    "sync.forceDownload": false,
-    "sync.anonymousGist": false,
-    "sync.host": "",
-    "sync.pathPrefix": "",
-    "sync.quietSync": false,
-    "sync.askGistName": false,
-    "cSpell.userWords": [
-        "isdigit"
-    ],
-    "cSpell.language": "en,en-US"
-}
-EOL'
+if [ -f ~/Library/Application\ Support/Code/User/settings.json ]; then
+    echo "File found! Getting the latest from GitHub, Archving the old"
+    mv ~/.vimrc ~/.vimrc.bak
+    curl -O https://raw.githubusercontent.com/maimon33/mac-setting/master/source/vs_code/settings.json ~/Library/Application\ Support/Code/User/settings.json
+else
+    curl -O https://raw.githubusercontent.com/maimon33/mac-setting/master/source/vs_code/settings.json ~/Library/Application\ Support/Code/User/settings.json
+fi
