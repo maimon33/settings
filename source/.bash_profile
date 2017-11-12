@@ -46,8 +46,8 @@ md () {
     cd $1
 }
 
- # AWS envs
- alias aws-stage='export AWS_ACCESS_KEY_ID=AKA...L && export AWS_SECRET_ACCESS_KEY="shu&%$%#n..T"'
+# AWS envs
+alias aws-stage='export AWS_ACCESS_KEY_ID=AKA...L && export AWS_SECRET_ACCESS_KEY="shu&%$%#n..T"'
 
 # Disable options:
 unset MAILCHECK        # Don't want my shell to warn me of incoming mail.
