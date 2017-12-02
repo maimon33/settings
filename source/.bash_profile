@@ -25,7 +25,7 @@ alias ip="curl icanhazip.com" # Your public IP address
 alias o="open ." # Open the current directory in Finder
 alias ls='ls -GFh'
 alias ll='ls -la'
-alias pip.='pip install -e . --upgrade'
+alias pip.='confirm pip install -e . --upgrade'
 alias mkdir='mkdir -p'
 alias c='clear'
 alias h='history'
@@ -44,6 +44,17 @@ alias rm_env='rmvirtualenv'
 md () {
     mkdir $1
     cd $1
+}
+
+confirm() {
+    echo -n "Do you want to run $*? [N/y] "
+    read -N 1 REPLY
+    echo
+    if test "$REPLY" = "y" -o "$REPLY" = "Y"; then
+        "$@"
+    else
+        echo "Cancelled by user"
+    fi
 }
 
 # AWS envs
