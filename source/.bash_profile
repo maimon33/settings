@@ -18,14 +18,10 @@ HISTFILESIZE=2000
 export WORKON_HOME=~/Envs
 source /usr/local/bin/virtualenvwrapper.sh
 
-# Aliases
+# System Aliases
+alias _='sudo'
 alias s='source ~/.bash_profile'
 alias pro='vim ~/.bash_profile'
-alias ip="curl icanhazip.com" # Your public IP address
-alias o="open ." # Open the current directory in Finder
-alias ls='ls -GFh'
-alias ll='ls -la'
-alias pip.='confirm pip install -e . --upgrade'
 alias mkdir='mkdir -p'
 alias c='clear'
 alias h='history'
@@ -33,7 +29,19 @@ alias path='echo -e ${PATH//:/\\n}'
 alias du='du -kh'    # Makes a more readable output.
 alias du+='du -hsc .*' # Disc usage of current dicertory
 alias em='emacs -nw'
-alias _='sudo'
+alias ls='ls -GFh'
+alias ll='ls -la'
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    alias o="open ." # Open the current directory in Finder
+else
+    alias o='xdg-open . > /dev/null 2>&1'
+fi
+
+# Applications Aliases
+alias pip.='confirm pip install -e . --upgrade'
+alias ip="curl icanhazip.com" # Your public IP address
+alias p='ping 8.8.8.8'
+alias d='docker'
 
 # virtual Env shortcuts
 alias mk_env='mkvirtualenv'
