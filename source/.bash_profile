@@ -6,13 +6,15 @@ export PS1="\[\033[36m\]\u\[\033[m\]@\h \[\033[32m\]\w\[\033[33m\]\$(parse_git_b
 export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagacad
 
-# History File
+## History File
 # append to the history file, don't overwrite it
 shopt -s histappend
-
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=1000
 HISTFILESIZE=2000
+
+# Bash Complition
+[ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
 
 # Setting up Virtualenvwrapper
 export WORKON_HOME=~/Envs
@@ -48,13 +50,14 @@ alias mk_env='mkvirtualenv'
 alias rm_env='rmvirtualenv'
 
 # Shell functions
-## Create folder and enter
 md () {
+    # Create folder and enter
     mkdir $1
     cd $1
 }
 
-confirm() {
+confirm () {
+    # Prompt Yes\ No to continue
     echo -n "Do you want to run $*? [N/y] "
     read -N 1 REPLY
     echo
@@ -63,6 +66,13 @@ confirm() {
     else
         echo "Cancelled by user"
     fi
+}
+
+rmx () {
+    # Secure delete folders and files
+    echo "You are about to complitly delete $1"
+    confirm
+    rm -rP $1 &
 }
 
 # AWS envs
