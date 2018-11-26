@@ -75,6 +75,12 @@ rmx () {
     rm -rP $1 &
 }
 
+ssh_proxy () {
+    # Connect to a server via proxy
+    echo "You are about to connect to $2 via $1"
+    ssh -o "ProxyCommand ssh $1 -W %h:%p" $2   
+}
+
 # AWS envs
 alias aws-stage='export AWS_ACCESS_KEY_ID=AKA...L && export AWS_SECRET_ACCESS_KEY="shu&%$%#n..T"'
 
