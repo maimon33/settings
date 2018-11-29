@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
 
-if [ -f ~/.bash_profile ]; then
+SOURCE_FILE="https://raw.githubusercontent.com/maimon33/mac-setting/master/source/.bash_profile"
+TARGET_FILE="~/.bash_profile"
+
+if [ -f $TARGET_FILE ]; then
     echo "File found! Getting the latest from GitHub, Archving the old"
-    mv ~/.bash_profile ~/.bash_profile.bak
-    curl https://raw.githubusercontent.com/maimon33/mac-setting/master/source/.bash_profile -o ~/.bash_profile
+    mv $TARGET_FILE $TARGET_FILE.bak
+    curl $SOURCE_FILE -o $TARGET_FILE
 else
-    curl https://raw.githubusercontent.com/maimon33/mac-setting/master/source/.bash_profile -o ~/.bash_profile
+    curl $SOURCE_FILE -o $TARGET_FILE
 fi
+
+source $TARGET_FILE

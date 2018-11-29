@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
-if [ -f ~/Library/Application\ Support/Code/User/settings.json ]; then
+SOURCE_FILE="ttps://raw.githubusercontent.com/maimon33/mac-setting/master/source/vs_code/settings.json"
+TARGET_FILE="~/Library/Application\ Support/Code/User/settings.json"
+
+if [ -f $TARGET_FILE ]; then
     echo "File found! Getting the latest from GitHub, Archving the old"
-    mv ~/Library/Application\ Support/Code/User/settings.json ~/Library/Application\ Support/Code/User/settings.json.bak
-    curl https://raw.githubusercontent.com/maimon33/mac-setting/master/source/vs_code/settings.json -o ~/Library/Application\ Support/Code/User/settings.json
+    mv $TARGET_FILE $TARGET_FILE.bak
+    curl $SOURCE_FILE -o $TARGET_FILE
 else
-    curl https://raw.githubusercontent.com/maimon33/mac-setting/master/source/vs_code/settings.json -o ~/Library/Application\ Support/Code/User/settings.json
+    curl $SOURCE_FILE -o $TARGET_FILE
 fi

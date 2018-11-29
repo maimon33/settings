@@ -56,15 +56,13 @@ md () {
     cd $1
 }
 
-confirm () {
-    # Prompt Yes\ No to continue
-    echo -n "Do you want to run $*? [N/y] "
-    read -N 1 REPLY
-    echo
-    if test "$REPLY" = "y" -o "$REPLY" = "Y"; then
-        "$@"
+confirm() {
+    echo $1
+    read -r -p "Are you sure? [Y/n]" response
+    if [[ $response =~ ^(yes|y| ) ]] || [[ -z $response ]]; then
+        $@
     else
-        echo "Cancelled by user"
+        return 1
     fi
 }
 
@@ -79,6 +77,24 @@ ssh_proxy () {
     # Connect to a server via proxy
     echo "You are about to connect to $2 via $1"
     ssh -o "ProxyCommand ssh $1 -W %h:%p" $2   
+}
+
+docker_clean () {
+   confirm "You are about to delete $1 that match $2"
+   case "$1" in
+      images)
+         docker images |grep $2 | while read -r image ; do
+   	   echo "Deleteing $image"
+   	   docker rmi $(echo $image | cut -d " " -f 3)
+   	 done
+	 ;;
+      containers)
+	 docker ps -a |grep $2 | while read -r container ; do
+	   echo "Deleteing $container"
+	   docker rm $(echo $container | cut -d " " -f 1)
+         done
+	 ;;
+   esac
 }
 
 # AWS envs
