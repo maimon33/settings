@@ -42,6 +42,7 @@ fi
 # Applications Aliases
 alias pip.='confirm pip install -e . --upgrade'
 alias ip="curl icanhazip.com" # Your public IP address
+alias ping="prettyping" # https://github.com/denilsonsa/prettyping
 alias p='ping 8.8.8.8'
 alias d='docker'
 
@@ -80,25 +81,36 @@ ssh_proxy () {
 }
 
 docker_clean () {
-   confirm "You are about to delete $1 that match $2"
-   case "$1" in
+    confirm "You are about to delete $1 that match $2"
+    case "$1" in
       images)
-         docker images |grep $2 | while read -r image ; do
-   	   echo "Deleteing $image"
-   	   docker rmi $(echo $image | cut -d " " -f 3)
-   	 done
-	 ;;
+          docker images |grep $2 | while read -r image ; do
+   	        echo "Deleteing $image"
+   	        docker rmi $(echo $image | cut -d " " -f 3)
+   	      done
+	  ;;
       containers)
-	 docker ps -a |grep $2 | while read -r container ; do
-	   echo "Deleteing $container"
-	   docker rm $(echo $container | cut -d " " -f 1)
-         done
-	 ;;
-   esac
+	    docker ps -a |grep $2 | while read -r container ; do
+	      echo "Deleteing $container"
+	      docker rm $(echo $container | cut -d " " -f 1)
+        done
+	  ;;
+    esac
 }
 
 # AWS envs
-alias aws-stage='export AWS_ACCESS_KEY_ID=AKA...L && export AWS_SECRET_ACCESS_KEY="shu&%$%#n..T"'
+set-aws() {
+        read -p "AWS Region? (default: eu-west-1): " AWS_DEFAULT_REGION
+        read -p "AWS ACCESS KEY ID? (default: None): " AWS_ACCESS_KEY_ID
+        read -p "AWS SECRET ACCESS KEY? (default: None): " AWS_SECRET_ACCESS_KEY
+        if [[ -z $AWS_DEFAULT_REGION ]]; then AWS_DEFAULT_REGION=eu-west-1 ;fi
+        echo "[default]" > $HOME/.aws/credentials
+        echo "output=json" >> $HOME/.aws/credentials
+        echo "region=$AWS_DEFAULT_REGION" >> $HOME/.aws/credentials
+        echo "aws_access_key_id=$AWS_ACCESS_KEY_ID" >> $HOME/.aws/credentials
+        echo "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" >> $HOME/.aws/credentials
+
+}
 
 # Disable options:
 unset MAILCHECK        # Don't want my shell to warn me of incoming mail.
