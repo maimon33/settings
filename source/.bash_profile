@@ -80,6 +80,7 @@ ssh_proxy () {
     ssh -o "ProxyCommand ssh $1 -W %h:%p" $2   
 }
 
+# Docker scripts
 docker_clean () {
     confirm "You are about to delete $1 that match $2"
     case "$1" in
@@ -96,6 +97,14 @@ docker_clean () {
         done
 	  ;;
     esac
+}
+
+tag+push() {
+	read -p "Docker Repo? (default: repo-docker-mirror.dev-f2g.com:5000/fdna): " DOCKER_REPO
+	if [[ -z $DOCKER_REPO ]]; then DOCKER_REPO=repo-docker-mirror.dev-f2g.com:5000/fdna ;fi
+	echo "Tagging $1 as $DOCKER_REPO/$2"
+	docker tag $1 $DOCKER_REPO/$2
+	docker push $2
 }
 
 # AWS envs
