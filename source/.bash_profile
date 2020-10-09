@@ -137,6 +137,7 @@ alias gx='gitx --all'
 alias gp='git pull'
 alias gl='git log --oneline -n 10'
 alias gr='git rebase -i'
+alias git_age='echo "Git Age:" $(( ($(date "+%s") - $(date -jf"%a %b %d %T %Y %z" "$(git log -1 --format=%cd)" +%s)) / (3600) )) "Hours"'
  
 # Safeties
 ## do not delete / or prompt if deleting more than 3 files at a time #
