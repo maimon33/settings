@@ -11,4 +11,7 @@ else
     curl $SOURCE_FILE -o $TARGET_FILE
 fi
 
+# Setting Bash as default shell
+chsh -s /bin/bash
+
 source $TARGET_FILE
