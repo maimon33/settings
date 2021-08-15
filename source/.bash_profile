@@ -35,6 +35,7 @@ alias du+='du -hsc .*' # Disc usage of current dicertory
 alias em='emacs -nw'
 alias ls='ls -GFh'
 alias ll='ls -la'
+alias lsblk='diskutil list'
 if [[ "$OSTYPE" == "darwin"* ]]; then
     alias o="open ." # Open the current directory in Finder
 else
@@ -47,6 +48,7 @@ alias ip="curl icanhazip.com" # Your public IP address
 alias ping="prettyping" # https://github.com/denilsonsa/prettyping
 alias p='ping 8.8.8.8'
 alias d='docker'
+alias tg="terragrunt"
 
 # virtual Env shortcuts
 alias mk_env='mkvirtualenv'
@@ -139,18 +141,19 @@ alias gx='gitx --all'
 alias gp='git pull'
 alias gl='git log --oneline -n 10'
 alias gr='git rebase -i'
+alias gh='git rev-parse HEAD'
 alias git_age='echo "Git Age:" $(( ($(date "+%s") - $(date -jf"%a %b %d %T %Y %z" "$(git log -1 --format=%cd)" +%s)) / (3600) )) "Hours"'
  
 # Safeties
 ## do not delete / or prompt if deleting more than 3 files at a time #
-alias rm='rm -I --preserve-root'
+#alias rm='rm -I --preserve-root'
 
 # confirmation #
-alias mv='mv -i'
-alias cp='cp -i'
-alias ln='ln -i'
+#alias mv='mv -i'
+#alias cp='cp -i'
+#alias ln='ln -i'
  
 # Parenting changing perms on / #
-alias chown='chown --preserve-root'
-alias chmod='chmod --preserve-root'
-alias chgrp='chgrp --preserve-root'
+#alias chown='chown --preserve-root'
+#alias chmod='chmod --preserve-root'
+#alias chgrp='chgrp --preserve-root'
