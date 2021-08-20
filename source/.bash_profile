@@ -49,6 +49,7 @@ alias ping="prettyping" # https://github.com/denilsonsa/prettyping
 alias p='ping 8.8.8.8'
 alias d='docker'
 alias tg="terragrunt"
+alias subl='/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl'
 
 # virtual Env shortcuts
 alias mk_env='mkvirtualenv'
