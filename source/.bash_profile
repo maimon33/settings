@@ -16,7 +16,8 @@ HISTSIZE=1000
 HISTFILESIZE=2000
 
 # Bash Complition
-[ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
+#[ -f /usr/local/etc/bash_completion ] && . /usr/local/etc/bash_completion
+[[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && . "/usr/local/etc/profile.d/bash_completion.sh"
 
 # Setting up Virtualenvwrapper
 export WORKON_HOME=~/Envs
