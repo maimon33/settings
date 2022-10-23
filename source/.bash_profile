@@ -86,6 +86,10 @@ ssh_proxy () {
     ssh -o "ProxyCommand ssh $1 -W %h:%p" $2   
 }
 
+download_cert () {
+  echo -n | openssl s_client -connect $1:443 -servername $1 | openssl x509 > /tmp/$1.cert
+}
+
 # Docker scripts
 docker_clean () {
     confirm "You are about to delete $1 that match $2"
