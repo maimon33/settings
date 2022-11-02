@@ -1,10 +1,41 @@
 export BASH_SILENCE_DEPRECATION_WARNING=1
 
 # Shell appearance
-parse_git_branch() {
+function parse_git_branch() {
      git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
 }
-export PS1="\[\033[36m\]\u\[\033[m\]@\h \[\033[32m\]\w\[\033[33m\]\$(parse_git_branch)\[\033[00m\] $ "
+
+function rightprompt() {
+    printf "%*s" $COLUMNS "$(parse_git_branch)"
+}
+
+function __kube_ps1() {
+    # Get current context
+    CONTEXT=$(cat ~/.kube/config | grep "current-context: " |awk -F / '{ print $2}')
+    NAMESPACE=$(cat ~/.kube/config | grep "namespace:" |awk -F ": " '{ print $2}')
+
+    if [ -n "$CONTEXT" ]; then
+        echo "(${CONTEXT}:${NAMESPACE})"
+    fi
+}
+
+# Powerline
+NORMAL="\[\033[00m\]"
+BLUE="\[\033[01;34m\]"
+RED="\[\033[0;31m\]"
+YELLOW="\[\e[1;33m\]"
+GREEN="\[\e[1;32m\]"
+
+if [[ "$(cat ~/.kube/config | grep "current-context: " |awk -F / '{ print $2}')" == *"prd-prd"* ]]; then
+    KUBE_COLOR=$RED
+else
+    KUBE_COLOR=$YELLOW
+fi
+
+export PS1="\[$(tput sc; rightprompt; tput rc)\]${BLUE}\w ${KUBE_COLOR}\$(__kube_ps1)${NORMAL} \$ > "
+
+#export PS1="\[\033[36m\]\u\[\033[m\]@\h \[\033[32m\]\w\[\033[33m\]\$(parse_git_branch)\[\033[00m\] $ "
+
 export CLICOLOR=1
 export LSCOLORS=ExFxBxDxCxegedabagacad
 
