@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+. "$SCRIPT_DIR/../lib/settings-common.sh"
+repo="$(settings_repo)"
+
+if [ "$(uname)" = Darwin ]; then
+  agent_dir="$HOME/Library/LaunchAgents"
+  plist="$agent_dir/com.settings.backup.plist"
+  mkdir -p "$agent_dir"
+  sed "s|__BACKUP_COMMAND__|$repo/bin/settings-backup|g" "$repo/service/com.settings.backup.plist.template" > "$plist"
+  launchctl bootout "gui/$(id -u)" "$plist" 2>/dev/null || true
+  launchctl bootstrap "gui/$(id -u)" "$plist"
+  settings_log "schedule installed: launchd daily"
+  printf 'Installed macOS LaunchAgent: %s\n' "$plist"
+else
+  line="0 2 * * * $repo/bin/settings-backup"
+  (crontab -l 2>/dev/null | grep -Fv "$repo/bin/settings-backup"; printf '%s\n' "$line") | crontab -
+  settings_log 'schedule installed: cron daily'
+  printf 'Installed daily cron job.\n'
+fi

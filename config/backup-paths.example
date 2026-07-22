@@ -1,0 +1,5 @@
+# One absolute path per line. Blank lines and lines beginning with # are ignored.
+# Copy this file to config/backup-paths.conf and list only data you own.
+# Examples:
+# /Users/you/.ssh
+# /Users/you/Documents/important

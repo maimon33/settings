@@ -1,1 +1,111 @@
-# mac-setting
+# Settings manager
+
+This repository makes personal workstation configuration repeatable without
+turning the repository into a copy of private credentials. It currently has
+two jobs:
+
+- maintain Bash aliases and functions from one source-controlled location;
+- make encrypted, local backups of explicitly selected sensitive paths, with a
+  small audit trail and a localhost-only dashboard.
+
+## Shell setup
+
+Run this once from a clone of the repository:
+
+```bash
+./install.sh
+```
+
+That adds this single, idempotent line to both `~/.bash_profile` and
+`~/.bashrc`:
+
+```bash
+[ -r "$HOME/.config/settings/profile.sh" ] && . "$HOME/.config/settings/profile.sh"
+```
+
+The generated profile points at this clone and loads `shell/aliases.sh` and
+`shell/functions.sh`. Add shared shell behavior to those files. Put
+machine-specific exports, tokens, and personal aliases in
+`~/.config/settings/local.sh`; it is deliberately outside the repository.
+Open a new shell (or run `settings-reload`) after updating the clone. The
+`settings` alias opens the management CLI. Later updates are a single command:
+
+```bash
+settings-sync
+```
+
+It fast-forwards this clone from Git, then reloads every shared alias and
+function in the current shell.
+
+## Encrypted backups
+
+Backups are opt-in. The tool does not scan your home directory, and it refuses
+to keep an unencrypted archive. It uses GnuPG symmetric AES-256 encryption;
+install `gpg` before running a backup.
+
+1. Run `./install.sh`.
+2. Create a protected passphrase file:
+
+   ```bash
+   umask 077
+   mkdir -p ~/.config/settings-manager
+   openssl rand -base64 48 > ~/.config/settings-manager/backup-passphrase
+   ```
+
+3. Edit `~/.config/settings-manager/settings.env` and ensure
+   `BACKUP_PASSPHRASE_FILE` names that file. Optionally choose a backup
+   destination and retention period there.
+4. Add the only paths you want protected:
+
+   ```bash
+   ./bin/settingsctl edit-targets
+   ./bin/settingsctl backup
+   ```
+
+`backup-paths.conf`, the passphrase, archives, and logs live under your user
+configuration/state directories and are ignored by Git. Keep the passphrase
+separate from the backup destination; losing it makes the archives
+unrecoverable. Test restoring a copy before relying on these backups.
+
+To schedule a daily 02:00 backup, run:
+
+```bash
+./bin/settingsctl schedule
+```
+
+On macOS this installs a per-user `launchd` agent that also runs once when it
+is loaded. On other systems it installs a user crontab entry. The scheduled
+job inherits the same opt-in target list and encryption requirement.
+
+## Management console
+
+The CLI is the main interface:
+
+```text
+settingsctl status             show configuration and most recent activity
+settingsctl edit-targets       safely create/edit the target list
+settingsctl targets            print the target list
+settingsctl backup             run an encrypted backup now
+settingsctl logs [lines]       view audit records (default: 100)
+settingsctl schedule           install the daily scheduler
+settingsctl serve              start the web dashboard
+```
+
+Run `./bin/settingsctl serve` and visit <http://127.0.0.1:8765>. The dashboard
+binds only to loopback, displays the latest 100 activity records, and can edit
+the target list. It does not expose the passphrase, archive contents, or an
+operation to run backups from a browser.
+
+## Repository layout
+
+```text
+shell/       shared aliases and functions
+config/      safe examples, never your private values
+bin/         installer, backup worker, CLI and scheduler installer
+service/     macOS launchd template
+web/         localhost dashboard
+lib/         shared shell helpers
+```
+
+The previous one-file shell profile is retained as historical source material
+at `source/.bash_profile`; it is no longer installed or overwritten.

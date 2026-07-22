@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+. "$SCRIPT_DIR/../lib/settings-common.sh"
+
+repo="$(settings_repo)"
+config_dir="$(settings_config_dir)"
+targets_file="$config_dir/backup-paths.conf"
+state_dir="$(settings_state_dir)"
+settings_load_env
+mkdir -p "$state_dir" "$BACKUP_DESTINATION"
+
+if [ ! -s "$targets_file" ]; then
+  settings_log 'backup skipped: no configured targets'
+  printf 'No backup targets. Copy %s/config/backup-paths.example to %s and edit it.\n' "$repo" "$targets_file" >&2
+  exit 0
+fi
+
+valid=()
+while IFS= read -r target; do
+  target="${target%%#*}"
+  [ -n "${target//[[:space:]]/}" ] || continue
+  if [ -e "$target" ]; then valid+=("$target"); else settings_log "backup target missing: $target"; fi
+done < "$targets_file"
+if [ "${#valid[@]}" -eq 0 ]; then
+  settings_log 'backup skipped: no targets exist'
+  exit 1
+fi
+
+umask 077
+timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+archive="$BACKUP_DESTINATION/backup-$timestamp.tar.gz"
+tar -czf "$archive" "${valid[@]}"
+
+if [ -z "${BACKUP_PASSPHRASE_FILE:-}" ] || [ ! -r "$BACKUP_PASSPHRASE_FILE" ]; then
+  rm -f -- "$archive"
+  settings_log 'backup refused: BACKUP_PASSPHRASE_FILE is not configured or readable'
+  printf 'Refusing to retain an unencrypted archive. Configure BACKUP_PASSPHRASE_FILE.\n' >&2
+  exit 1
+fi
+if ! command -v gpg >/dev/null 2>&1; then
+  rm -f -- "$archive"
+  settings_log 'backup failed: gpg is required for encrypted backups'
+  printf 'gpg is required for encrypted backups. Install GnuPG and retry.\n' >&2
+  exit 1
+fi
+gpg --batch --yes --pinentry-mode loopback --passphrase-file "$BACKUP_PASSPHRASE_FILE" \
+  --symmetric --cipher-algo AES256 --output "$archive.gpg" "$archive"
+rm -f -- "$archive"
+archive="$archive.gpg"
+
+find "$BACKUP_DESTINATION" -type f -name 'backup-*.tar.gz*' -mtime "+$BACKUP_RETENTION_DAYS" -delete
+settings_log "backup completed: $archive (${#valid[@]} target(s))"
+printf 'Backup complete: %s\n' "$archive"

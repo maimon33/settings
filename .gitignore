@@ -1,0 +1,3 @@
+# Local configuration may name sensitive files and must never be committed.
+config/backup-paths.conf
+.settings-manager/

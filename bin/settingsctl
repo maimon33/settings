@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+. "$SCRIPT_DIR/../lib/settings-common.sh"
+repo="$(settings_repo)"
+config_dir="$(settings_config_dir)"
+state_dir="$(settings_state_dir)"
+usage() { printf 'Usage: settingsctl {install|status|backup|targets|edit-targets|logs|serve|schedule}\n'; }
+
+case "${1:-}" in
+  install) exec "$repo/install.sh" ;;
+  backup) exec "$repo/bin/settings-backup" ;;
+  targets) [ -r "$config_dir/backup-paths.conf" ] && sed -n '1,200p' "$config_dir/backup-paths.conf" || printf 'No targets configured. Use: settingsctl edit-targets\n' ;;
+  edit-targets) mkdir -p "$config_dir"; [ -e "$config_dir/backup-paths.conf" ] || cp "$repo/config/backup-paths.example" "$config_dir/backup-paths.conf"; ${EDITOR:-vi} "$config_dir/backup-paths.conf" ;;
+  logs) tail -n "${2:-100}" "$state_dir/activity.log" 2>/dev/null || true ;;
+  status)
+    settings_load_env
+    printf 'Repository: %s\nTargets: %s\nDestination: %s\nRetention: %s days\n' "$repo" "$config_dir/backup-paths.conf" "$BACKUP_DESTINATION" "$BACKUP_RETENTION_DAYS"
+    if [ "$(uname)" = Darwin ]; then
+      if launchctl print "gui/$(id -u)/com.settings.backup" >/dev/null 2>&1; then schedule='active (launchd)'; else schedule='not installed'; fi
+    elif crontab -l 2>/dev/null | grep -Fq "$repo/bin/settings-backup"; then
+      schedule='active (cron)'
+    else
+      schedule='not installed'
+    fi
+    printf 'Schedule: %s\n' "$schedule"
+    [ -f "$state_dir/activity.log" ] && tail -n 1 "$state_dir/activity.log" || printf 'Last activity: none\n'
+    ;;
+  serve) exec python3 "$repo/web/server.py" ;;
+  schedule) exec "$repo/bin/install-schedule" ;;
+  *) usage; exit 64 ;;
+esac
