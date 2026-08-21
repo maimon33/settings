@@ -24,7 +24,8 @@ That adds this single, idempotent line to both `~/.bash_profile` and
 ```
 
 The generated profile points at this clone and loads `shell/aliases.sh` and
-`shell/functions.sh`. Add shared shell behavior to those files. Put
+`shell/functions.sh`, plus the Kubernetes toolkit in `shell/kubernetes.sh`.
+Add shared shell behavior to those files. Put
 machine-specific exports, tokens, and personal aliases in
 `~/.config/settings/local.sh`; it is deliberately outside the repository.
 Open a new shell (or run `settings-reload`) after updating the clone. The
@@ -36,6 +37,41 @@ settings-sync
 
 It fast-forwards this clone from Git, then reloads every shared alias and
 function in the current shell.
+
+## Kubernetes shell toolkit
+
+If `kubectl` is installed, run `khelp` for the complete command index. The
+toolkit covers context and namespace switching, resource discovery, logs and
+shell access, guarded deploy/scale/rollout/node operations, YAML exports,
+cross-namespace cloning, backups, RBAC checks, monitoring, and diagnostics.
+`kubectl` is the only hard dependency; clone and resource-request analysis use
+`jq`, while `fzf` adds an interactive context picker.
+
+Mutating helpers show the current context and namespace and require typing
+`yes`. Direct read-only shortcuts such as `kgp`, `kgd`, `kgn`, and `klf` do not
+prompt. Namespace and cluster backups exclude Secrets unless
+`--include-secrets` is explicitly supplied, create owner-only files, and are
+API object snapshots—not substitutes for etcd or persistent-volume backups.
+
+Examples:
+
+```bash
+k pods -A                     # friendly resource dispatcher
+k svc                         # services in the current namespace
+k get configmaps             # regular kubectl commands pass through
+kc get pods                  # kc is the direct kubectl alias
+kbash deployment/api         # shell into a running workload pod
+kbash app=api sidecar        # select a ready pod by label and container
+kctx                          # list contexts
+kctx production              # switch context
+kns payments                  # validate and switch namespace
+khealth                       # compact operational health report
+kapply k8s/                   # server dry-run, diff, confirm, apply
+kscale deployment/api 4       # confirm, scale, wait for rollout
+kclone configmap app dev      # sanitize and clone to namespace dev
+kbackup-ns payments backups/payments
+kbackup-cluster backups/all --include-secrets
+```
 
 ## Encrypted backups
 
