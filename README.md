@@ -23,9 +23,9 @@ That adds this single, idempotent line to both `~/.bash_profile` and
 [ -r "$HOME/.config/settings/profile.sh" ] && . "$HOME/.config/settings/profile.sh"
 ```
 
-The generated profile points at this clone and loads `shell/aliases.sh` and
-`shell/functions.sh`, plus the Kubernetes toolkit in `shell/kubernetes.sh`.
-Add shared shell behavior to those files. Put
+The generated profile points at this clone and loads `shell/aliases.sh`,
+`shell/functions.sh`, the Kubernetes toolkit (`shell/kubernetes.sh`), and cleanup
+utilities (`shell/cleanup.sh`). Add shared shell behavior to those files. Put
 machine-specific exports, tokens, and personal aliases in
 `~/.config/settings/local.sh`; it is deliberately outside the repository.
 Open a new shell (or run `settings-reload`) after updating the clone. The
@@ -64,6 +64,12 @@ kbash deployment/api         # shell into a running workload pod
 kbash app=api sidecar        # select a ready pod by label and container
 kctx                          # list contexts
 kctx production              # switch context
+kctx show production          # inspect context with credentials redacted
+kctx export production prod.kubeconfig
+kctx namespace production payments
+kctx rename old-name new-name
+kctx delete unused-context    # refuses to delete the current context
+kctx create local docker-desktop docker-desktop default
 kns payments                  # validate and switch namespace
 khealth                       # compact operational health report
 kapply k8s/                   # server dry-run, diff, confirm, apply
@@ -71,6 +77,41 @@ kscale deployment/api 4       # confirm, scale, wait for rollout
 kclone configmap app dev      # sanitize and clone to namespace dev
 kbackup-ns payments backups/payments
 kbackup-cluster backups/all --include-secrets
+```
+
+Context exports are flattened, self-contained kubeconfig files and therefore
+may contain credentials. They are written atomically with mode `600`. Context
+rename, deletion, creation, and namespace changes require confirmation;
+`kctx delete` protects the currently selected context. Run `kctx help` for the
+full management command list.
+
+## Cleanup and maintenance utilities
+
+Cleanup commands are safe: all mutating operations prompt for confirmation before
+proceeding. Run `_cleanup_help` for the complete command reference.
+
+Cleanup operations:
+```bash
+cleanup-cache              delete ~/.cache and .cache folders recursively
+cleanup-terraform          find and delete .terraform folders in current tree
+cleanup-docker             run docker system prune -a
+cleanup-tmp                purge ~/tmp and old /tmp files
+cleanup-all                run all cleanup functions in sequence
+```
+
+Utilities and scheduling:
+```bash
+app-list                   show installed applications
+app-usage                  show top running processes by memory usage
+schedule-task CMD [WHEN]   schedule a command as a launchd agent
+                           WHEN: daily (02:00), hourly, weekly, or HH:MM
+```
+
+Examples:
+```bash
+cleanup-terraform
+schedule-task 'brew update' daily
+schedule-task 'cleanup-all' 03:00
 ```
 
 ## Encrypted backups
