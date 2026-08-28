@@ -24,10 +24,10 @@ That adds this single, idempotent line to both `~/.bash_profile` and
 ```
 
 The generated profile points at this clone and loads `shell/aliases.sh`,
-`shell/functions.sh`, the Kubernetes toolkit (`shell/kubernetes.sh`), and cleanup
-utilities (`shell/cleanup.sh`). Add shared shell behavior to those files. Put
-machine-specific exports, tokens, and personal aliases in
-`~/.config/settings/local.sh`; it is deliberately outside the repository.
+`shell/functions.sh`, the Kubernetes toolkit (`shell/kubernetes.sh`), cleanup
+utilities (`shell/cleanup.sh`), and AWS helpers (`shell/aws.sh`). Add shared shell
+behavior to those files. Put machine-specific exports, tokens, and personal aliases
+in `~/.config/settings/local.sh`; it is deliberately outside the repository.
 Open a new shell (or run `settings-reload`) after updating the clone. The
 `settings` alias opens the management CLI. Later updates are a single command:
 
@@ -112,6 +112,50 @@ Examples:
 cleanup-terraform
 schedule-task 'brew update' daily
 schedule-task 'cleanup-all' 03:00
+```
+
+## AWS CLI helpers
+
+AWS helpers wrap common CLI operations with sensible defaults and readable output.
+All functions require `aws-cli` to be installed. Run `_aws_help` for the complete
+command reference.
+
+Identity and configuration:
+```bash
+aws_whoami                show current AWS account/user/role/credentials
+aws_region [REGION]       show or set AWS region
+```
+
+EKS and EC2:
+```bash
+eks_ami KUBE_VERSION      get recommended EKS AMI ID (supports AL2 and AL2023)
+ec2_instances [TAG VAL]   list running instances (optionally filter by tag)
+ec2_start INSTANCE_ID     start EC2 instance
+ec2_stop INSTANCE_ID      stop EC2 instance
+```
+
+Secrets, IAM, and encryption:
+```bash
+secretsmanager_get NAME   fetch secret value
+secretsmanager_list       list all secrets
+iam_policies ROLE_NAME    list policies attached to IAM role
+kms_decrypt FILE          decrypt KMS-encrypted file
+```
+
+RDS, Lambda, and CloudFormation:
+```bash
+rds_snapshots [DB_ID]     list DB snapshots
+lambda_logs FUNCTION      tail Lambda function logs
+cloudformation_stack_status STACK  show CloudFormation stack status
+```
+
+Examples:
+```bash
+eks_ami 1.32                              # get AL2023 AMI for EKS 1.32
+ec2_instances Environment production      # list prod instances
+lambda_logs my-function                   # stream logs
+secretsmanager_get database-password      # fetch secret
+aws_region us-west-2                      # change region
 ```
 
 ## Encrypted backups
