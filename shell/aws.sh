@@ -19,23 +19,19 @@ eks_ami() {
     return
   fi
 
-  [ "$#" -eq 1 ] || { printf 'usage: eks_ami KUBE_VERSION\n' >&2; return 2; }
-  local version="$1" region="${AWS_REGION:-$(_aws_region)}" ami
+  [ "$#" -ge 1 ] && [ "$#" -le 2 ] || { printf 'usage: eks_ami KUBE_VERSION [AMI_TYPE]\n' >&2; return 2; }
+  local version="$1" ami_type="${2:-amazon-linux-2023/x86_64/standard}" region="${AWS_REGION:-$(_aws_region)}" ami
 
-  # Try multiple distro naming conventions (AWS changed naming for 1.33+)
-  # 1.32 and earlier: amazon-linux-2023, amazon-linux-2
-  # 1.33+: al2023, al2 or amazonlinux2023, amazonlinux2
-  for distro in amazon-linux-2023 al2023 amazonlinux2023 amazon-linux-2 al2 amazonlinux2; do
-    ami="$(aws ssm get-parameter --name "/aws/service/eks/optimized-ami/${version}/${distro}/recommended/image_id" \
-      --region "$region" --query "Parameter.Value" --output text 2>/dev/null)"
-    if [ -n "$ami" ] && [ "$ami" != "None" ]; then
-      printf '%s\n' "$ami"
-      return 0
-    fi
-  done
+  # Correct path: /aws/service/eks/optimized-ami/{version}/{ami-type}/recommended/image_id
+  ami="$(aws ssm get-parameter --name "/aws/service/eks/optimized-ami/${version}/${ami_type}/recommended/image_id" \
+    --region "$region" --query "Parameter.Value" --output text 2>/dev/null)"
+  if [ -n "$ami" ] && [ "$ami" != "None" ]; then
+    printf '%s\n' "$ami"
+    return 0
+  fi
 
-  printf 'eks_ami: no AMI found for EKS %s in %s\n' "$version" "$region" >&2
-  printf 'Try: eks_ami --list\n' >&2
+  printf 'eks_ami: no AMI found for EKS %s with type %s in %s\n' "$version" "$ami_type" "$region" >&2
+  printf 'Available AMI types: amazon-linux-2023/x86_64/standard, amazon-linux-2023/arm64/standard, etc.\n' >&2
   return 1
 }
 
@@ -43,23 +39,15 @@ eks_ami_versions() {
   _aws_need aws || return
   local region="${1:-$(_aws_region)}"
 
-  printf 'Checking available EKS AMI versions in %s...\n' "$region" >&2
-  printf 'Note: AWS may not have released optimized AMIs for all versions.\n\n' >&2
-
-  # Try to get a sample parameter to debug
-  local sample
-  sample="$(aws ssm get-parameter --name "/aws/service/eks/optimized-ami/1.32/amazon-linux-2023/recommended/image_id" \
-    --region "$region" --query "Parameter.Value" --output text 2>&1)" || true
-
-  if [ -n "$sample" ] && [ "$sample" != "None" ]; then
-    printf 'EKS 1.32+ (amazon-linux-2023):\n'
-    printf '  Sample query works: /aws/service/eks/optimized-ami/VERSION/amazon-linux-2023/recommended/image_id\n\n'
-  fi
-
-  printf 'To find available versions, check AWS docs:\n'
-  printf '  https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-amis.html\n'
-  printf '\nOr query SSM directly:\n'
-  printf '  aws ssm describe-parameters --filters "Key=Name,Values=/aws/service/eks/optimized-ami/1.32/*" --region %s\n' "$region"
+  printf 'EKS AMI parameter path format:\n\n' >&2
+  printf '  /aws/service/eks/optimized-ami/<VERSION>/<AMI_TYPE>/recommended/image_id\n\n' >&2
+  printf 'Available AMI types:\n' >&2
+  printf '  - amazon-linux-2023/x86_64/standard (default, recommended)\n' >&2
+  printf '  - amazon-linux-2023/x86_64/nvidia\n' >&2
+  printf '  - amazon-linux-2023/arm64/standard (AWS Graviton)\n' >&2
+  printf '  - amazon-linux-2023/arm64/nvidia\n' >&2
+  printf '  - amazon-linux-2023/x86_64/neuron (AWS Neuron)\n\n' >&2
+  printf 'Reference: https://docs.aws.amazon.com/eks/latest/userguide/retrieve-ami-id.html\n' >&2
 }
 
 aws_whoami() {
@@ -184,9 +172,10 @@ Identity and configuration
   aws_region [REGION]       show or set AWS region
 
 EKS utilities
-  eks_ami KUBE_VERSION      get recommended AMI ID for EKS version
-                            (note: AWS may not have released AMIs for all versions)
-  eks_ami --list            show version availability and AWS docs link
+  eks_ami VERSION [TYPE]    get recommended AMI ID for EKS version
+                            TYPE: amazon-linux-2023/x86_64/standard (default)
+                                  amazon-linux-2023/arm64/standard, etc.
+  eks_ami --list            show path formats and AWS docs link
 
 EC2 utilities
   ec2_instances [TAG VAL]   list running instances (optionally filter by tag)
