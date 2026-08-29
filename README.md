@@ -128,7 +128,8 @@ aws_region [REGION]       show or set AWS region
 
 EKS and EC2:
 ```bash
-eks_ami KUBE_VERSION      get recommended EKS AMI ID (supports AL2 and AL2023)
+eks_ami KUBE_VERSION      get recommended EKS AMI ID (1.32+ supported)
+eks_ami --list            check version availability and AWS docs
 ec2_instances [TAG VAL]   list running instances (optionally filter by tag)
 ec2_start INSTANCE_ID     start EC2 instance
 ec2_stop INSTANCE_ID      stop EC2 instance

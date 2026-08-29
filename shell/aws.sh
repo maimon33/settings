@@ -185,7 +185,8 @@ Identity and configuration
 
 EKS utilities
   eks_ami KUBE_VERSION      get recommended AMI ID for EKS version
-                            (works for AL2 and AL2023)
+                            (note: AWS may not have released AMIs for all versions)
+  eks_ami --list            show version availability and AWS docs link
 
 EC2 utilities
   ec2_instances [TAG VAL]   list running instances (optionally filter by tag)
