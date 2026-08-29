@@ -13,12 +13,19 @@ _aws_region() {
 
 eks_ami() {
   _aws_need aws || return
-  [ "$#" -eq 1 ] || { printf 'usage: eks_ami KUBE_VERSION\n' >&2; return 2; }
 
+  if [ "$1" = "--list" ]; then
+    eks_ami_versions "${AWS_REGION:-$(_aws_region)}"
+    return
+  fi
+
+  [ "$#" -eq 1 ] || { printf 'usage: eks_ami KUBE_VERSION\n' >&2; return 2; }
   local version="$1" region="${AWS_REGION:-$(_aws_region)}" ami
 
-  # Try AL2023 first (EKS 1.32+), fall back to Amazon Linux 2
-  for distro in amazon-linux-2023 amazon-linux-2; do
+  # Try multiple distro naming conventions (AWS changed naming for 1.33+)
+  # 1.32 and earlier: amazon-linux-2023, amazon-linux-2
+  # 1.33+: al2023, al2 or amazonlinux2023, amazonlinux2
+  for distro in amazon-linux-2023 al2023 amazonlinux2023 amazon-linux-2 al2 amazonlinux2; do
     ami="$(aws ssm get-parameter --name "/aws/service/eks/optimized-ami/${version}/${distro}/recommended/image_id" \
       --region "$region" --query "Parameter.Value" --output text 2>/dev/null)"
     if [ -n "$ami" ] && [ "$ami" != "None" ]; then
@@ -28,7 +35,31 @@ eks_ami() {
   done
 
   printf 'eks_ami: no AMI found for EKS %s in %s\n' "$version" "$region" >&2
+  printf 'Try: eks_ami --list\n' >&2
   return 1
+}
+
+eks_ami_versions() {
+  _aws_need aws || return
+  local region="${1:-$(_aws_region)}"
+
+  printf 'Checking available EKS AMI versions in %s...\n' "$region" >&2
+  printf 'Note: AWS may not have released optimized AMIs for all versions.\n\n' >&2
+
+  # Try to get a sample parameter to debug
+  local sample
+  sample="$(aws ssm get-parameter --name "/aws/service/eks/optimized-ami/1.32/amazon-linux-2023/recommended/image_id" \
+    --region "$region" --query "Parameter.Value" --output text 2>&1)" || true
+
+  if [ -n "$sample" ] && [ "$sample" != "None" ]; then
+    printf 'EKS 1.32+ (amazon-linux-2023):\n'
+    printf '  Sample query works: /aws/service/eks/optimized-ami/VERSION/amazon-linux-2023/recommended/image_id\n\n'
+  fi
+
+  printf 'To find available versions, check AWS docs:\n'
+  printf '  https://docs.aws.amazon.com/eks/latest/userguide/eks-optimized-amis.html\n'
+  printf '\nOr query SSM directly:\n'
+  printf '  aws ssm describe-parameters --filters "Key=Name,Values=/aws/service/eks/optimized-ami/1.32/*" --region %s\n' "$region"
 }
 
 aws_whoami() {
