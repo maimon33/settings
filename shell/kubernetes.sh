@@ -87,7 +87,7 @@ Safe management
   kapply FILE...            server dry-run, diff, confirm, then apply
   kdiff FILE...             compare manifests with live state
   kdelete ARGS...           confirm context/namespace, then delete
-  kscale TYPE/NAME N        confirm and scale
+  kscale TYPE/NAME N|+N|-N  confirm and scale to/by a replica count
   kautoscale WORKLOAD MIN MAX [CPU]
                            create/update an HPA (default target CPU: 80%)
   krestart TYPE/NAME        confirm and restart a rollout
@@ -379,10 +379,33 @@ kdelete() {
 }
 
 kscale() {
-  [ "$#" -eq 2 ] || { printf 'usage: kscale TYPE/NAME REPLICAS\n' >&2; return 2; }
-  case "$2" in ''|*[!0-9]*) printf 'kscale: replicas must be a non-negative integer\n' >&2; return 2 ;; esac
-  _kube_confirm "Scale $1 to $2 replicas in $(_kube_location)?" || return
-  kubectl scale "$1" --replicas="$2" && kubectl rollout status "$1"
+  [ "$#" -eq 2 ] || { printf 'usage: kscale TYPE/NAME REPLICAS|+DELTA|-DELTA\n' >&2; return 2; }
+  local requested="$2" current delta sign replicas prompt scale_current=''
+  case "$requested" in
+    +*|-*)
+      delta="${requested#?}"
+      case "$delta" in ''|*[!0-9]*) printf 'kscale: delta must be an integer prefixed with + or -\n' >&2; return 2 ;; esac
+      sign="${requested%"$delta"}"
+      current="$(kubectl get "$1" -o 'jsonpath={.spec.replicas}')" || return
+      case "$current" in ''|*[!0-9]*) printf 'kscale: could not read the current replica count for %s\n' "$1" >&2; return 1 ;; esac
+      while [ "${delta#0}" != "$delta" ] && [ "$delta" != 0 ]; do delta="${delta#0}"; done
+      if [ "$sign" = + ]; then
+        replicas=$((current + delta))
+      else
+        replicas=$((current - delta))
+      fi
+      [ "$replicas" -ge 0 ] || { printf 'kscale: resulting replica count cannot be negative (%s)\n' "$replicas" >&2; return 2; }
+      scale_current="--current-replicas=$current"
+      prompt="Scale $1 by $requested from $current to $replicas replicas"
+      ;;
+    *)
+      case "$requested" in ''|*[!0-9]*) printf 'kscale: replicas must be a non-negative integer or a signed delta\n' >&2; return 2 ;; esac
+      replicas="$requested"
+      prompt="Scale $1 to $replicas replicas"
+      ;;
+  esac
+  _kube_confirm "$prompt in $(_kube_location)?" || return
+  kubectl scale "$1" ${scale_current:+"$scale_current"} --replicas="$replicas" && kubectl rollout status "$1"
 }
 
 kautoscale() {

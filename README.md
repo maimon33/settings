@@ -74,6 +74,7 @@ kns payments                  # validate and switch namespace
 khealth                       # compact operational health report
 kapply k8s/                   # server dry-run, diff, confirm, apply
 kscale deployment/api 4       # confirm, scale, wait for rollout
+kscale deployment/api +1      # increment the current replica count by one
 kclone configmap app dev      # sanitize and clone to namespace dev
 kbackup-ns payments backups/payments
 kbackup-cluster backups/all --include-secrets

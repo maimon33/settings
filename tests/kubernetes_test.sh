@@ -19,6 +19,7 @@ kubectl() {
     'config current-context') printf 'test-cluster\n' ;;
     'config view --minify -o jsonpath={..namespace}') printf 'test-ns' ;;
     'get namespace target') return 0 ;;
+    'get deployment/api -o jsonpath={.spec.replicas}') printf '3' ;;
     get\ pods\ -n\ test-ns\ -l\ app=api*) printf 'api-abc\ttrue \n' ;;
     'get service api -o json')
       printf '%s\n' '{"apiVersion":"v1","kind":"Service","metadata":{"name":"api","namespace":"source","uid":"old","resourceVersion":"7","managedFields":[{}]},"spec":{"clusterIP":"10.0.0.1","clusterIPs":["10.0.0.1"],"ports":[{"port":80,"nodePort":30080}]},"status":{"loadBalancer":{}}}'
@@ -59,6 +60,20 @@ reset_log
 KUBE_AUTO_APPROVE=1 kscale deployment/api 3 >/dev/null
 assert_log 'scale deployment/api --replicas=3'
 assert_log 'rollout status deployment/api'
+
+reset_log
+KUBE_AUTO_APPROVE=1 kscale deployment/api +1 >/dev/null
+assert_log 'get deployment/api -o jsonpath={.spec.replicas}'
+assert_log 'scale deployment/api --current-replicas=3 --replicas=4'
+assert_log 'rollout status deployment/api'
+
+reset_log
+KUBE_AUTO_APPROVE=1 kscale deployment/api -2 >/dev/null
+assert_log 'scale deployment/api --current-replicas=3 --replicas=1'
+
+reset_log
+if KUBE_AUTO_APPROVE=1 kscale deployment/api -4 >/dev/null 2>&1; then fail 'scale below zero succeeded'; fi
+if grep -F -- 'scale deployment/api' "$TEST_LOG" >/dev/null; then fail 'scale below zero reached kubectl scale'; fi
 
 reset_log
 kpf service/api 8080:80 >/dev/null
